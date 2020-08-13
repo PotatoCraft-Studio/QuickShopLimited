@@ -1,0 +1,6 @@
+name: QuickShopLimited
+version: ${project.version}
+main: com.mcsunnyside.quickshoplimited.QuickShopLimited
+api-version: 1.13
+depend:
+  - QuickShop
