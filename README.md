@@ -5,4 +5,4 @@
 /qs limit <amount> - 设置单玩家最大交易数量限制，-1为重置为初始不限制状态并清空记录的交易数据
 
 ## 演示
-![demo](https://media.discordapp.net/attachments/680602779676573735/743375887176826970/unknown.png)
+![demo](https://i.loli.net/2020/08/14/fxaRoIgBKXtiz62.png)
