@@ -9,6 +9,7 @@ import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.command.CommandContainer;
 import org.maxgamer.quickshop.event.ShopPurchaseEvent;
 import org.maxgamer.quickshop.shop.Shop;
+import org.maxgamer.quickshop.util.MsgUtil;
 
 import java.util.Map;
 
@@ -20,11 +21,12 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
     public void onEnable() {
         // Plugin startup logic
         instance = this;
+        saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
         this.container = CommandContainer.builder()
                 .prefix("limit")
                 .permission("quickshop.limited")
-                .description("设置每个玩家在此商店最大购买物品数量上限")
+                .description(getConfig().getString("command-description"))
                 .executor(new ShopLimitedCommand())
                 .build();
         QuickShop.getInstance().getCommandManager().registerCmd(container);
@@ -46,13 +48,13 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
         int limit = Integer.parseInt(storage.get("limit"));
         int playerUsedLimit = Integer.parseInt(storage.getOrDefault(event.getPlayer().getUniqueId().toString(), "0"));
         if (playerUsedLimit + event.getAmount() > limit) {
-            event.getPlayer().sendMessage(ChatColor.RED + "您在此商店的购买数量已达上限，您还能购买：" + (limit - playerUsedLimit) + ", 您正在尝试购买：" + event.getAmount());
+            event.getPlayer().sendMessage(ChatColor.RED + MsgUtil.fillArgs(getConfig().getString("reach-the-limit"), String.valueOf(limit - playerUsedLimit), String.valueOf(event.getAmount())));
             event.setCancelled(true);
             return;
         }
         playerUsedLimit += event.getAmount();
         storage.put(event.getPlayer().getUniqueId().toString(), String.valueOf(playerUsedLimit));
-        shop.setExtra(this,storage);
-        event.getPlayer().sendTitle(ChatColor.GREEN + "购买成功", ChatColor.GOLD + "在此商店还可购买: " + ChatColor.AQUA + (limit - playerUsedLimit) + "件物品");
+        shop.setExtra(this, storage);
+        event.getPlayer().sendTitle(ChatColor.GREEN + getConfig().getString("message.title"), ChatColor.AQUA + MsgUtil.fillArgs(getConfig().getString("message.subtitle", String.valueOf(limit - playerUsedLimit))));
     }
 }
