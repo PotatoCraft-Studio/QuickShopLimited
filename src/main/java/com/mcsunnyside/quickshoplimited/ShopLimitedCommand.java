@@ -22,7 +22,7 @@ public class ShopLimitedCommand implements CommandProcesser {
             return;
         }
         if (strings.length < 1) {
-            MsgUtil.sendMessage(commandSender, ChatColor.RED+"参数不足");
+            MsgUtil.sendMessage(commandSender, ChatColor.RED+MsgUtil.getMessage("wrong-args",commandSender));
             return;
         }
         try{
@@ -46,14 +46,14 @@ public class ShopLimitedCommand implements CommandProcesser {
                 Map<String ,String > map = shop.getExtra(QuickShopLimited.instance);
                 if(limitAmount > 0) {
                     map.put("limit", String.valueOf(limitAmount));
-                    MsgUtil.sendMessage(commandSender,ChatColor.GREEN+"设置成功");
+                    MsgUtil.sendMessage(commandSender,ChatColor.GREEN+QuickShopLimited.instance.getConfig().getString("success-setup"));
                 }else{
                     map.clear();
-                    MsgUtil.sendMessage(commandSender,ChatColor.GREEN+"重置成功");
+                    MsgUtil.sendMessage(commandSender,ChatColor.GREEN+QuickShopLimited.instance.getConfig().getString("success-reset"));
                 }
                 shop.setExtra(QuickShopLimited.instance,map);
 
-                MsgUtil.sendMessage(commandSender,ChatColor.GREEN+"设置成功");
+                MsgUtil.sendMessage(commandSender,ChatColor.GREEN+QuickShopLimited.instance.getConfig().getString("success-setup"));
 
                 return;
             }
@@ -62,8 +62,7 @@ public class ShopLimitedCommand implements CommandProcesser {
 
 
         }catch (NumberFormatException e){
-            commandSender.sendMessage(ChatColor.RED+"输入的参数不是一个有效整数");
-            return;
+            commandSender.sendMessage(ChatColor.RED+MsgUtil.getMessage("not-a-integer",commandSender,strings[0]));
         }
     }
 }
