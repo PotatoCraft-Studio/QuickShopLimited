@@ -64,6 +64,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void scheduleEvent(CalendarEvent event) {
+        Util.debugLog("[QuickShopLimited] Processing calendar event...");
         QuickShopAPI.getShopAPI().getAllShops().forEach(shop -> {
             ConfigurationSection manager = shop.getExtra(this);
             int limit = manager.getInt("limit");
