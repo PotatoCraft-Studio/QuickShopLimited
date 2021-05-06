@@ -25,7 +25,7 @@ public class ShopLimitedCommand implements CommandProcesser {
             return;
         }
         if (strings.length < 1) {
-            MsgUtil.sendMessage(commandSender, ChatColor.RED + MsgUtil.getMessage("wrong-args", commandSender));
+            MsgUtil.sendMessage(commandSender, ChatColor.RED + MsgUtil.getMessage("command.wrong-args", commandSender));
             return;
         }
         final BlockIterator bIt = new BlockIterator((Player) commandSender, 10);
@@ -63,7 +63,7 @@ public class ShopLimitedCommand implements CommandProcesser {
                     }
                     manager.save();
                 } catch (NumberFormatException e) {
-                    commandSender.sendMessage(ChatColor.RED + MsgUtil.getMessage("not-a-integer", commandSender, strings[0]));
+                    commandSender.sendMessage(ChatColor.RED + MsgUtil.getMessage("not-a-integer", commandSender, strings[1]));
                 }
                 return;
             case "unset":
@@ -83,11 +83,10 @@ public class ShopLimitedCommand implements CommandProcesser {
                     manager.set("period", type.name());
                     MsgUtil.sendMessage(commandSender, ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-setup"));
                     manager.save();
-                    return;
                 }catch (IllegalArgumentException ignored){
-                    MsgUtil.sendMessage(commandSender, ChatColor.RED + MsgUtil.getMessage("wrong-args", commandSender));
-                    return;
+                    MsgUtil.sendMessage(commandSender, ChatColor.RED + MsgUtil.getMessage("command.wrong-args", commandSender));
                 }
+                return;
         }
 
     }
