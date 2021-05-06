@@ -3,6 +3,7 @@ package studio.potatocraft.quickshoplimited;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,6 @@ import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.command.CommandProcesser;
 import org.maxgamer.quickshop.event.CalendarEvent;
 import org.maxgamer.quickshop.shop.Shop;
-import org.maxgamer.quickshop.shop.ShopExtraManager;
 import org.maxgamer.quickshop.util.MsgUtil;
 
 import java.util.List;
@@ -48,7 +48,7 @@ public class ShopLimitedCommand implements CommandProcesser {
             MsgUtil.sendMessage(commandSender, MsgUtil.getMessage("not-looking-at-shop", commandSender));
             return;
         }
-        ShopExtraManager manager = shop.getExtraManager(QuickShopLimited.instance);
+        ConfigurationSection manager = shop.getExtra(QuickShopLimited.instance);
         switch (strings[0]){
             case "set":
                 try {
@@ -61,7 +61,7 @@ public class ShopLimitedCommand implements CommandProcesser {
                         manager.set("data", null);
                         MsgUtil.sendMessage(commandSender, ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-reset"));
                     }
-                    manager.save();
+                    shop.setExtra(QuickShopLimited.instance,manager);
                 } catch (NumberFormatException e) {
                     commandSender.sendMessage(ChatColor.RED + MsgUtil.getMessage("not-a-integer", commandSender, strings[1]));
                 }
@@ -70,11 +70,11 @@ public class ShopLimitedCommand implements CommandProcesser {
                 manager.set("limit", null);
                 manager.set("data", null);
                 MsgUtil.sendMessage(commandSender, ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-reset"));
-                manager.save();
+                shop.setExtra(QuickShopLimited.instance,manager);
                 return;
             case "reset":
                 manager.set("data", null);
-                manager.save();
+                shop.setExtra(QuickShopLimited.instance,manager);
                 MsgUtil.sendMessage(commandSender, ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-reset"));
                 return;
             case "resetperiod":
@@ -82,7 +82,7 @@ public class ShopLimitedCommand implements CommandProcesser {
                     CalendarEvent.CalendarTriggerType type = CalendarEvent.CalendarTriggerType.valueOf(strings[1].toUpperCase(Locale.ROOT));
                     manager.set("period", type.name());
                     MsgUtil.sendMessage(commandSender, ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-setup"));
-                    manager.save();
+                    shop.setExtra(QuickShopLimited.instance,manager);
                 }catch (IllegalArgumentException ignored){
                     MsgUtil.sendMessage(commandSender, ChatColor.RED + MsgUtil.getMessage("command.wrong-args", commandSender));
                 }

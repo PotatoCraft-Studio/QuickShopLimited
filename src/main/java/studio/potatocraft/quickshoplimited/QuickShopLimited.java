@@ -3,6 +3,7 @@ package studio.potatocraft.quickshoplimited;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +13,6 @@ import org.maxgamer.quickshop.command.CommandContainer;
 import org.maxgamer.quickshop.event.CalendarEvent;
 import org.maxgamer.quickshop.event.ShopPurchaseEvent;
 import org.maxgamer.quickshop.shop.Shop;
-import org.maxgamer.quickshop.shop.ShopExtraManager;
 import org.maxgamer.quickshop.util.MsgUtil;
 import org.maxgamer.quickshop.util.Util;
 
@@ -45,7 +45,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void shopPurchase(ShopPurchaseEvent event) {
         Shop shop = event.getShop();
-        ShopExtraManager storage = shop.getExtraManager(this);
+        ConfigurationSection storage = shop.getExtra(this);
         if (storage.getInt("limit") < 1) {
             return;
         }
@@ -58,14 +58,14 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
         }
         playerUsedLimit += event.getAmount();
         storage.set("data." + event.getPlayer().getUniqueId().toString(), String.valueOf(playerUsedLimit));
-        storage.save();
+        shop.setExtra(QuickShopLimited.instance,storage);
         event.getPlayer().sendTitle(ChatColor.GREEN + getConfig().getString("message.title"), ChatColor.AQUA + MsgUtil.fillArgs(getConfig().getString("message.subtitle", String.valueOf(limit - playerUsedLimit))));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void scheduleEvent(CalendarEvent event) {
         QuickShopAPI.getShopAPI().getAllShops().forEach(shop -> {
-            ShopExtraManager manager = shop.getExtraManager(this);
+            ConfigurationSection manager = shop.getExtra(this);
             int limit = manager.getInt("limit");
             if (limit < 1) {
                 return;
@@ -76,13 +76,13 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
             try {
                 if (event.getCalendarTriggerType().ordinal() > CalendarEvent.CalendarTriggerType.valueOf(manager.getString("period")).ordinal()) {
                     manager.set("data", null);
-                    manager.save();
+                    shop.setExtra(QuickShopLimited.instance,manager);
                     Util.debugLog("Limit data has been reset. Shop -> " + shop);
                 }
             }catch (IllegalArgumentException ignored){
                 Util.debugLog("Limit data failed to reset. Shop -> " + shop+" type "+manager.getString("period")+" not exists.");
                 manager.set("period", null);
-                manager.save();
+                shop.setExtra(QuickShopLimited.instance,manager);
             }
         });
     }
