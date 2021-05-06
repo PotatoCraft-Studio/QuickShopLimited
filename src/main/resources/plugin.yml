@@ -1,6 +1,6 @@
 name: QuickShopLimited
 version: ${project.version}
-main: com.mcsunnyside.quickshoplimited.QuickShopLimited
-api-version: 1.13
-depend:
-  - QuickShop
+main: studio.potatocraft.quickshoplimited.QuickShopLimited
+api-version: 1.14
+depend: [QuickShop]
+authors: [Ghost_chu]

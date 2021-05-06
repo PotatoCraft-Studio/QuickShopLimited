@@ -1,8 +1,1 @@
-command-description: "Limit the amount per player can purchase"
-reach-the-limit: "You have reached the limit in this shop. You can purchase {0}, but you trying purchase {1}."
-success-reset: "Reset successfully"
-success-setup: "Set up!"
-
-message:
-  title: "Purchase Success"
-  subtitle: "You can purchase {0} more in this shop"
+messages:

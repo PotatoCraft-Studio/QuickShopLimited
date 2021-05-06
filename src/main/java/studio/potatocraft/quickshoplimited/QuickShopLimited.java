@@ -1,19 +1,23 @@
-package com.mcsunnyside.quickshoplimited;
+package studio.potatocraft.quickshoplimited;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.maxgamer.quickshop.QuickShop;
+import org.maxgamer.quickshop.api.QuickShopAPI;
 import org.maxgamer.quickshop.command.CommandContainer;
+import org.maxgamer.quickshop.event.CalendarEvent;
 import org.maxgamer.quickshop.event.ShopPurchaseEvent;
 import org.maxgamer.quickshop.shop.Shop;
+import org.maxgamer.quickshop.shop.ShopExtraManager;
 import org.maxgamer.quickshop.util.MsgUtil;
-
-import java.util.Map;
+import org.maxgamer.quickshop.util.Util;
 
 public final class QuickShopLimited extends JavaPlugin implements Listener {
+
     public static QuickShopLimited instance;
     private CommandContainer container;
 
@@ -41,20 +45,45 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void shopPurchase(ShopPurchaseEvent event) {
         Shop shop = event.getShop();
-        Map<String, String> storage = shop.getExtra(this);
-        if (storage.isEmpty() || storage.get("limit") == null || storage.get("limit").isEmpty() || Integer.parseInt(storage.get("limit")) < 1) {
+        ShopExtraManager storage = shop.getExtraManager(this);
+        if (storage.getInt("limit") < 1) {
             return;
         }
-        int limit = Integer.parseInt(storage.get("limit"));
-        int playerUsedLimit = Integer.parseInt(storage.getOrDefault(event.getPlayer().getUniqueId().toString(), "0"));
+        int limit = storage.getInt("limit");
+        int playerUsedLimit = storage.getInt("data." + event.getPlayer().getUniqueId().toString(), 0);
         if (playerUsedLimit + event.getAmount() > limit) {
             event.getPlayer().sendMessage(ChatColor.RED + MsgUtil.fillArgs(getConfig().getString("reach-the-limit"), String.valueOf(limit - playerUsedLimit), String.valueOf(event.getAmount())));
             event.setCancelled(true);
             return;
         }
         playerUsedLimit += event.getAmount();
-        storage.put(event.getPlayer().getUniqueId().toString(), String.valueOf(playerUsedLimit));
-        shop.setExtra(this, storage);
+        storage.set("data." + event.getPlayer().getUniqueId().toString(), String.valueOf(playerUsedLimit));
+        storage.save();
         event.getPlayer().sendTitle(ChatColor.GREEN + getConfig().getString("message.title"), ChatColor.AQUA + MsgUtil.fillArgs(getConfig().getString("message.subtitle", String.valueOf(limit - playerUsedLimit))));
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void scheduleEvent(CalendarEvent event) {
+        QuickShopAPI.getShopAPI().getAllShops().forEach(shop -> {
+            ShopExtraManager manager = shop.getExtraManager(this);
+            int limit = manager.getInt("limit");
+            if (limit < 1) {
+                return;
+            }
+            if (StringUtils.isEmpty(manager.getString("period"))) {
+                return;
+            }
+            try {
+                if (event.getCalendarTriggerType().ordinal() > CalendarEvent.CalendarTriggerType.valueOf(manager.getString("period")).ordinal()) {
+                    manager.set("data", null);
+                    manager.save();
+                    Util.debugLog("Limit data has been reset. Shop -> " + shop);
+                }
+            }catch (IllegalArgumentException ignored){
+                Util.debugLog("Limit data failed to reset. Shop -> " + shop+" type "+manager.getString("period")+" not exists.");
+                manager.set("period", null);
+                manager.save();
+            }
+        });
     }
 }
