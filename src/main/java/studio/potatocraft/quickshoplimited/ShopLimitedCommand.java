@@ -54,7 +54,7 @@ public class ShopLimitedCommand implements CommandProcesser {
                 try {
                     int limitAmount = Integer.parseInt(strings[1]);
                     if (limitAmount > 0) {
-                        manager.set("limit", String.valueOf(limitAmount));
+                        manager.set("limit", limitAmount);
                         MsgUtil.sendMessage(commandSender, ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-setup"));
                     } else {
                         manager.set("limit", null);
