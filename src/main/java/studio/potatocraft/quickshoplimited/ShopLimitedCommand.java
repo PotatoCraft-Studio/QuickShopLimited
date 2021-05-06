@@ -77,7 +77,7 @@ public class ShopLimitedCommand implements CommandProcesser {
                 shop.setExtra(QuickShopLimited.instance,manager);
                 MsgUtil.sendMessage(commandSender, ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-reset"));
                 return;
-            case "resetperiod":
+            case "period":
                 try {
                     CalendarEvent.CalendarTriggerType type = CalendarEvent.CalendarTriggerType.valueOf(strings[1].toUpperCase(Locale.ROOT));
                     manager.set("period", type.name());

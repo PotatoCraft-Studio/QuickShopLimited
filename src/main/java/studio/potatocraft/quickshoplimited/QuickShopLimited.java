@@ -65,7 +65,6 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void scheduleEvent(CalendarEvent event) {
-        Util.debugLog("[QuickShopLimited] Processing calendar event...");
         QuickShopAPI.getShopAPI().getAllShops().forEach(shop -> {
             ConfigurationSection manager = shop.getExtra(this);
             int limit = manager.getInt("limit");
@@ -76,7 +75,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
                 return;
             }
             try {
-                if (event.getCalendarTriggerType().ordinal() > CalendarEvent.CalendarTriggerType.valueOf(manager.getString("period")).ordinal()) {
+                if (event.getCalendarTriggerType().ordinal() >= CalendarEvent.CalendarTriggerType.valueOf(manager.getString("period")).ordinal()) {
                     manager.set("data", null);
                     shop.setExtra(QuickShopLimited.instance,manager);
                     Util.debugLog("Limit data has been reset. Shop -> " + shop);
