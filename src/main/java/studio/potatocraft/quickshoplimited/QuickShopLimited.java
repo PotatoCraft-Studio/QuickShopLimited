@@ -11,6 +11,7 @@ import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.QuickShopAPI;
 import org.maxgamer.quickshop.command.CommandContainer;
 import org.maxgamer.quickshop.event.CalendarEvent;
+import org.maxgamer.quickshop.event.QSReloadEvent;
 import org.maxgamer.quickshop.event.ShopPurchaseEvent;
 import org.maxgamer.quickshop.shop.Shop;
 import org.maxgamer.quickshop.util.MsgUtil;
@@ -33,6 +34,11 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
                 .description(getConfig().getString("command-description"))
                 .executor(new ShopLimitedCommand())
                 .build();
+        QuickShop.getInstance().getCommandManager().registerCmd(container);
+    }
+
+    @EventHandler
+    public void onQuickShopReload(QSReloadEvent event){
         QuickShop.getInstance().getCommandManager().registerCmd(container);
     }
 
