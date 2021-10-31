@@ -9,11 +9,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.QuickShopAPI;
-import org.maxgamer.quickshop.command.CommandContainer;
-import org.maxgamer.quickshop.event.CalendarEvent;
-import org.maxgamer.quickshop.event.QSReloadEvent;
-import org.maxgamer.quickshop.event.ShopPurchaseEvent;
-import org.maxgamer.quickshop.shop.Shop;
+import org.maxgamer.quickshop.api.command.CommandContainer;
+import org.maxgamer.quickshop.api.event.CalendarEvent;
+import org.maxgamer.quickshop.api.event.ShopPurchaseEvent;
+import org.maxgamer.quickshop.api.shop.Shop;
 import org.maxgamer.quickshop.util.MsgUtil;
 import org.maxgamer.quickshop.util.Util;
 
@@ -21,6 +20,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
 
     public static QuickShopLimited instance;
     private CommandContainer container;
+    private QuickShopAPI api;
 
     @Override
     public void onEnable() {
@@ -28,19 +28,16 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
         instance = this;
         saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
+        this.api = (QuickShopAPI) Bukkit.getPluginManager().getPlugin("QuickShop");
         this.container = CommandContainer.builder()
                 .prefix("limit")
                 .permission("quickshop.limited")
                 .description(getConfig().getString("command-description"))
-                .executor(new ShopLimitedCommand())
+                .executor(new ShopLimitedCommand(api))
                 .build();
         QuickShop.getInstance().getCommandManager().registerCmd(container);
     }
 
-    @EventHandler
-    public void onQuickShopReload(QSReloadEvent event){
-        QuickShop.getInstance().getCommandManager().registerCmd(container);
-    }
 
     @Override
     public void onDisable() {
@@ -71,7 +68,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void scheduleEvent(CalendarEvent event) {
-        QuickShopAPI.getShopAPI().getAllShops().forEach(shop -> {
+        api.getShopManager().getAllShops().forEach(shop -> {
             ConfigurationSection manager = shop.getExtra(this);
             int limit = manager.getInt("limit");
             if (limit < 1) {
