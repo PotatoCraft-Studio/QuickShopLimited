@@ -5,6 +5,8 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.QuickShopAPI;
 import org.maxgamer.quickshop.api.command.CommandHandler;
@@ -12,7 +14,8 @@ import org.maxgamer.quickshop.api.event.CalendarEvent;
 import org.maxgamer.quickshop.api.shop.Shop;
 import org.maxgamer.quickshop.util.MsgUtil;
 
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ShopLimitedCommand implements CommandHandler<Player> {
     private QuickShopAPI api;
@@ -78,13 +81,31 @@ public class ShopLimitedCommand implements CommandHandler<Player> {
                 try {
                     CalendarEvent.CalendarTriggerType type = CalendarEvent.CalendarTriggerType.valueOf(strings[1].toUpperCase(Locale.ROOT));
                     manager.set("period", type.name());
-                    MsgUtil.sendDirectMessage(commandSender,ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-setup"));
-                    shop.setExtra(QuickShopLimited.instance,manager);
-                }catch (IllegalArgumentException ignored){
-                    api.getTextManager().of(commandSender,"command.wrong-args",strings[1]).send();
+                    MsgUtil.sendDirectMessage(commandSender, ChatColor.GREEN + QuickShopLimited.instance.getConfig().getString("success-setup"));
+                    shop.setExtra(QuickShopLimited.instance, manager);
+                } catch (IllegalArgumentException ignored) {
+                    api.getTextManager().of(commandSender, "command.wrong-args", strings[1]).send();
                 }
-                return;
         }
+    }
 
+    private static final List<String> args = new ArrayList<>(Arrays.asList("set", "unset", "reset", "period"));
+    private static final List<String> period = Arrays.stream(CalendarEvent.CalendarTriggerType.values()).map(CalendarEvent.CalendarTriggerType::name).collect(Collectors.toList());
+
+    @Override
+    @Nullable
+    public List<String> onTabComplete(@NotNull Player sender, @NotNull String commandLabel, @NotNull String[] cmdArg) {
+        if (cmdArg.length == 0) {
+            return args;
+        }
+        if (cmdArg.length == 1) {
+            switch (cmdArg[0].toLowerCase(Locale.ROOT)) {
+                case "set":
+                    return Collections.singletonList("[number]");
+                case "period":
+                    return period;
+            }
+        }
+        return Collections.emptyList();
     }
 }
