@@ -4,3 +4,7 @@ main: studio.potatocraft.quickshoplimited.QuickShopLimited
 api-version: 1.14
 depend: [QuickShop]
 authors: [Ghost_chu]
+permissions:
+  quickshop.limited:
+    default: op
+    description: Permission to use /qs limit
