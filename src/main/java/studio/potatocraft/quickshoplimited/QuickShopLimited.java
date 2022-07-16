@@ -12,6 +12,7 @@ import org.maxgamer.quickshop.api.QuickShopAPI;
 import org.maxgamer.quickshop.api.command.CommandContainer;
 import org.maxgamer.quickshop.api.event.CalendarEvent;
 import org.maxgamer.quickshop.api.event.ShopPurchaseEvent;
+import org.maxgamer.quickshop.api.event.ShopSuccessPurchaseEvent;
 import org.maxgamer.quickshop.api.shop.Shop;
 import org.maxgamer.quickshop.util.MsgUtil;
 import org.maxgamer.quickshop.util.Util;
@@ -45,8 +46,24 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
         QuickShop.getInstance().getCommandManager().unregisterCmd(container);
     }
 
+    @EventHandler
+    public void shopPurchased(ShopSuccessPurchaseEvent event) {
+        Shop shop = event.getShop();
+        ConfigurationSection storage = shop.getExtra(this);
+        if (storage.getInt("limit") < 1) {
+            return;
+        }
+        int limit = storage.getInt("limit");
+        int playerUsedLimit = storage.getInt("data." + event.getPlayer().getUniqueId(), 0);
+        playerUsedLimit += event.getAmount();
+        storage.set("data." + event.getPlayer().getUniqueId(), playerUsedLimit);
+        shop.setExtra(QuickShopLimited.instance, storage);
+        event.getPlayer().sendTitle(ChatColor.GREEN + getConfig().getString("message.title"),
+                ChatColor.AQUA + MsgUtil.fillArgs(getConfig().getString("message.subtitle"), String.valueOf(limit - playerUsedLimit)));
+    }
+
     @EventHandler(ignoreCancelled = true)
-    public void shopPurchase(ShopPurchaseEvent event) {
+    public void shopPrePurchase(ShopPurchaseEvent event) {
         Shop shop = event.getShop();
         ConfigurationSection storage = shop.getExtra(this);
         if (storage.getInt("limit") < 1) {
@@ -57,13 +74,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
         if (playerUsedLimit + event.getAmount() > limit) {
             event.getPlayer().sendMessage(ChatColor.RED + MsgUtil.fillArgs(getConfig().getString("reach-the-limit"), String.valueOf(limit - playerUsedLimit), String.valueOf(event.getAmount())));
             event.setCancelled(true);
-            return;
         }
-        playerUsedLimit += event.getAmount();
-        storage.set("data." + event.getPlayer().getUniqueId().toString(), playerUsedLimit);
-        shop.setExtra(QuickShopLimited.instance,storage);
-        event.getPlayer().sendTitle(ChatColor.GREEN + getConfig().getString("message.title"),
-                ChatColor.AQUA + MsgUtil.fillArgs(getConfig().getString("message.subtitle"),String.valueOf(limit - playerUsedLimit)));
     }
 
     @EventHandler(ignoreCancelled = true)
