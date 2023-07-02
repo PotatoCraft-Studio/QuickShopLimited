@@ -65,6 +65,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
 
     @EventHandler
     public void shopClick(PlayerShopClickEvent event) {
+
         Shop shop = event.getShop();
         ConfigurationSection storage = shop.getExtra(this);
         if (storage.getInt("limit") < 1) {
@@ -72,8 +73,9 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
         }
         int limit = storage.getInt("limit");
         int playerUsedLimit = storage.getInt("data." + event.getPlayer().getUniqueId(), 0);
-        
-        event.getPlayer().sendMessage(ChatColor.ORANGE + MsgUtil.fillArgs(getConfig().getString("tell-the-limit"), String.valueOf(limit), String.valueOf(limit - playerUsedLimit)));
+
+        //that the message is under the shop block
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> event.getPlayer().sendMessage(ChatColor.YELLOW + MsgUtil.fillArgs(getConfig().getString("tell-the-limit"), String.valueOf(limit), String.valueOf(limit - playerUsedLimit))), 1);
     }
     
     @EventHandler(ignoreCancelled = true)
