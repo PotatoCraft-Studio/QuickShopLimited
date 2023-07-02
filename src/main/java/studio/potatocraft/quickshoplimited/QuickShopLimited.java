@@ -12,6 +12,7 @@ import org.maxgamer.quickshop.api.QuickShopAPI;
 import org.maxgamer.quickshop.api.command.CommandContainer;
 import org.maxgamer.quickshop.api.event.CalendarEvent;
 import org.maxgamer.quickshop.api.event.ShopPurchaseEvent;
+import org.maxgamer.quickshop.api.event.PlayerShopClickEvent;
 import org.maxgamer.quickshop.api.event.ShopSuccessPurchaseEvent;
 import org.maxgamer.quickshop.api.shop.Shop;
 import org.maxgamer.quickshop.util.MsgUtil;
@@ -62,6 +63,19 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
                 ChatColor.AQUA + MsgUtil.fillArgs(getConfig().getString("message.subtitle"), String.valueOf(limit - playerUsedLimit)));
     }
 
+    @EventHandler
+    public void shopClick(PlayerShopClickEvent event) {
+        Shop shop = event.getShop();
+        ConfigurationSection storage = shop.getExtra(this);
+        if (storage.getInt("limit") < 1) {
+            return;
+        }
+        int limit = storage.getInt("limit");
+        int playerUsedLimit = storage.getInt("data." + event.getPlayer().getUniqueId(), 0);
+        
+        event.getPlayer().sendMessage(ChatColor.ORANGE + MsgUtil.fillArgs(getConfig().getString("tell-the-limit"), String.valueOf(limit - playerUsedLimit), String.valueOf(event.getAmount())));
+    }
+    
     @EventHandler(ignoreCancelled = true)
     public void shopPrePurchase(ShopPurchaseEvent event) {
         Shop shop = event.getShop();
@@ -71,7 +85,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
         }
         int limit = storage.getInt("limit");
         int playerUsedLimit = storage.getInt("data." + event.getPlayer().getUniqueId(), 0);
-        if (playerUsedLimit + event.getAmount() > limit) {
+        if (playerUsedLimit + event.getAmount() == limit) {
             event.getPlayer().sendMessage(ChatColor.RED + MsgUtil.fillArgs(getConfig().getString("reach-the-limit"), String.valueOf(limit - playerUsedLimit), String.valueOf(event.getAmount())));
             event.setCancelled(true);
         }
