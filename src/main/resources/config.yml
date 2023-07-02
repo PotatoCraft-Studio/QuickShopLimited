@@ -1,4 +1,5 @@
 command-description: "Limit the amount per player can purchase"
+tell-the-limit: "This shop has an limit of {0} items! You can purchase {1}."
 reach-the-limit: "You have reached the limit in this shop. You can purchase {0}, but you trying purchase {1}."
 success-reset: "Reset successfully"
 success-setup: "Set up!"
