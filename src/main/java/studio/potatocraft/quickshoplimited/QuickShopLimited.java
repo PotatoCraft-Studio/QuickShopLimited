@@ -85,7 +85,7 @@ public final class QuickShopLimited extends JavaPlugin implements Listener {
         }
         int limit = storage.getInt("limit");
         int playerUsedLimit = storage.getInt("data." + event.getPlayer().getUniqueId(), 0);
-        if (playerUsedLimit + event.getAmount() == limit) {
+        if (playerUsedLimit + event.getAmount() > limit) {
             event.getPlayer().sendMessage(ChatColor.RED + MsgUtil.fillArgs(getConfig().getString("reach-the-limit"), String.valueOf(limit - playerUsedLimit), String.valueOf(event.getAmount())));
             event.setCancelled(true);
         }
